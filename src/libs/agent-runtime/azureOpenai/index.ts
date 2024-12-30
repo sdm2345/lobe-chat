@@ -33,9 +33,14 @@ export class LobeAzureOpenAI implements LobeRuntimeAI {
     if (model === 'o1-mini' || model === 'o1-preview') {
       const params2 = {...params}
       delete params2['stream']
+      delete params2['temperature']
+      const messages2 = messages.map((item:ChatRequestMessage) => {
+        item.role = item.role === 'system' ? 'user' : item.role;
+        return item;
+      })
       const response = await this.client.getChatCompletions(
         model,
-        messages as ChatRequestMessage[],
+        messages2 as ChatRequestMessage[],
         {...params2, abortSignal: options?.signal} as GetChatCompletionsOptions,
       );
 
