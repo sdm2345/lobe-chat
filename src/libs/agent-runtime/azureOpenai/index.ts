@@ -1,17 +1,12 @@
-import {
-  AzureKeyCredential,
-  ChatRequestMessage,
-  GetChatCompletionsOptions,
-  OpenAIClient,
-} from '@azure/openai';
+import {AzureKeyCredential, ChatRequestMessage, GetChatCompletionsOptions, OpenAIClient,} from '@azure/openai';
 
-import { LobeRuntimeAI } from '../BaseAI';
-import { AgentRuntimeErrorType } from '../error';
-import { ChatCompetitionOptions, ChatStreamPayload, ModelProvider } from '../types';
-import { AgentRuntimeError } from '../utils/createError';
-import { debugStream } from '../utils/debugStream';
-import { StreamingResponse } from '../utils/response';
-import { AzureOpenAIStream } from '../utils/streams';
+import {LobeRuntimeAI} from '../BaseAI';
+import {AgentRuntimeErrorType} from '../error';
+import {ChatCompetitionOptions, ChatStreamPayload, ModelProvider} from '../types';
+import {AgentRuntimeError} from '../utils/createError';
+import {debugStream} from '../utils/debugStream';
+import {StreamingResponse} from '../utils/response';
+import {AzureOpenAIStream} from '../utils/streams';
 
 export class LobeAzureOpenAI implements LobeRuntimeAI {
   client: OpenAIClient;
@@ -20,7 +15,8 @@ export class LobeAzureOpenAI implements LobeRuntimeAI {
     if (!apikey || !endpoint)
       throw AgentRuntimeError.createError(AgentRuntimeErrorType.InvalidProviderAPIKey);
 
-    this.client = new OpenAIClient(endpoint, new AzureKeyCredential(apikey), { apiVersion });
+    console.log(`init OpenAIClient endpoint:${endpoint}`)
+    this.client = new OpenAIClient(endpoint, new AzureKeyCredential(apikey), {allowInsecureConnection:true,apiVersion});
 
     this.baseURL = endpoint;
   }
@@ -30,15 +26,81 @@ export class LobeAzureOpenAI implements LobeRuntimeAI {
   async chat(payload: ChatStreamPayload, options?: ChatCompetitionOptions) {
     // ============  1. preprocess messages   ============ //
     const camelCasePayload = this.camelCaseKeys(payload);
-    const { messages, model, maxTokens = 2048, ...params } = camelCasePayload;
+    const {messages, model, maxTokens = 2048, ...params} = camelCasePayload;
 
     // ============  2. send api   ============ //
 
+    console.log('model.slice(0, 8) === \'o3-mini-\' ',model.slice(0, 8) === 'o3-mini-' ,model,model.slice(0, 8))
+    // mock stream api for o1-mini and o1-preview
+    if (model.slice(0, 8) === 'o3-mini-' || model === 'o1-mini' || model === 'o1-preview') {
+      const params2 = {...params}
+      delete params2['stream']
+      delete params2['temperature']
+      const messages2 = messages.map((item: ChatRequestMessage) => {
+        item.role = item.role === 'system' ? 'user' : item.role;
+        return item;
+      })
+      console.log('messages2:', messages2)
+      let modelNew = model;
+      let reasoning_effort = 'low'
+      if (model.slice(0, 8) === 'o3-mini-') {
+        modelNew = 'o3-mini'
+        reasoning_effort = model.slice(8)
+        const TypeMap: Record<string, string> = {
+          'high': 'high',
+          'low': 'low',
+          'medium': 'medium'
+        }
+        reasoning_effort = (TypeMap[reasoning_effort] as string) || 'low'
+
+        // params2['reasoning_effort'] = reasoning_effort
+      }
+      console.log('params',params2)
+      const response = await this.client.getChatCompletions(
+        modelNew,
+        messages2 as ChatRequestMessage[],
+        {...params2, abortSignal: options?.signal} as GetChatCompletionsOptions,
+      );
+
+      const sendMessage = function (ctl: ReadableStreamDefaultController, evt: {
+        data: any,
+        event: string,
+        id: string,
+      }) {
+        const encoder: TextEncoder = new TextEncoder();
+        const msg = `id: ${evt.id}
+event: ${evt.event}
+data: ${JSON.stringify(evt.data)}\n\n`
+        ctl.enqueue(encoder.encode(msg));
+      }
+
+      console.log('result console.log(\'result\',response.choices)',response.choices)
+
+      return StreamingResponse(new ReadableStream({
+        start: (controller) => {
+
+          console.log('result',response.choices)
+          let content = response.choices[0].message?.content
+          if (content) {
+            const arr = content.split('\n')
+            for (const line of arr) {
+              sendMessage(controller, {
+                  data: line + '\n',
+                  event: 'text',
+                  id: response.id
+                }
+              )
+            }
+          }
+          controller.close()
+        }
+      }));
+    }
     try {
       const response = await this.client.streamChatCompletions(
         model,
         messages as ChatRequestMessage[],
-        { ...params, abortSignal: options?.signal, maxTokens } as GetChatCompletionsOptions,
+        {...params, abortSignal: options?.signal, maxTokens} as GetChatCompletionsOptions,
       );
 
       const [debug, prod] = response.tee();
@@ -56,7 +118,7 @@ export class LobeAzureOpenAI implements LobeRuntimeAI {
       if (error.code) {
         switch (error.code) {
           case 'DeploymentNotFound': {
-            error = { ...error, deployId: model };
+            error = {...error, deployId: model};
           }
         }
       } else {
