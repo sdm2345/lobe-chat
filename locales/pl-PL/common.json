@@ -275,6 +275,7 @@
   },
   "temp": "Tymczasowy",
   "terms": "Warunki korzystania",
+  "update": "Aktualizuj",
   "updateAgent": "Zaktualizuj informacje o agencie",
   "upgradeVersion": {
     "action": "Aktualizuj",
@@ -285,6 +286,7 @@
     "anonymousNickName": "Użytkownik Anonimowy",
     "billing": "Zarządzanie rachunkami",
     "cloud": "Wypróbuj {{name}}",
+    "community": "Wersja społeczności",
     "data": "Przechowywanie danych",
     "defaultNickname": "Użytkownik Wersji Społecznościowej",
     "discord": "Wsparcie społeczności",
@@ -294,7 +296,6 @@
     "help": "Centrum pomocy",
     "moveGuide": "Przenieś przycisk ustawień tutaj",
     "plans": "Plan abonamentu",
-    "preview": "Podgląd",
     "profile": "Zarządzanie kontem",
     "setting": "Ustawienia aplikacji",
     "usages": "Statystyki użycia"

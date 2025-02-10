@@ -269,6 +269,7 @@ export default {
   },
   temp: '临时',
   terms: '服务条款',
+  update: '更新',
   updateAgent: '更新助理信息',
   upgradeVersion: {
     action: '升级',
@@ -279,6 +280,7 @@ export default {
     anonymousNickName: '匿名用户',
     billing: '账单管理',
     cloud: '体验 {{name}}',
+    community: '社区版',
     data: '数据存储',
     defaultNickname: '社区版用户',
     discord: '社区支持',
@@ -288,7 +290,6 @@ export default {
     help: '帮助中心',
     moveGuide: '设置按钮搬到这里啦',
     plans: '订阅方案',
-    preview: '预览版',
     profile: '账户管理',
     setting: '应用设置',
     usages: '用量统计',

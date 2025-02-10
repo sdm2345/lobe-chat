@@ -84,8 +84,7 @@
         },
         "modalTitle": "Configuration du modèle personnalisé",
         "tokens": {
-          "title": "Nombre maximal de jetons",
-          "unlimited": "illimité"
+          "title": "Nombre maximal de jetons"
         },
         "vision": {
           "extra": "Cette configuration n'activera que la configuration de téléchargement d'images dans l'application. La prise en charge de la reconnaissance dépend entièrement du modèle lui-même, veuillez tester la disponibilité des capacités de reconnaissance visuelle de ce modèle.",
@@ -201,6 +200,9 @@
     "enableMaxTokens": {
       "title": "Activer la limite de tokens par réponse"
     },
+    "enableReasoningEffort": {
+      "title": "Activer l'ajustement de l'intensité de raisonnement"
+    },
     "frequencyPenalty": {
       "desc": "Plus la valeur est élevée, plus il est probable de réduire les mots répétés",
       "title": "Pénalité de fréquence"
@@ -216,6 +218,15 @@
     "presencePenalty": {
       "desc": "Plus la valeur est élevée, plus il est probable d'explorer de nouveaux sujets",
       "title": "Pénalité de présence"
+    },
+    "reasoningEffort": {
+      "desc": "Plus la valeur est élevée, plus la capacité de raisonnement est forte, mais cela peut augmenter le temps de réponse et la consommation de jetons",
+      "options": {
+        "high": "Élevé",
+        "low": "Bas",
+        "medium": "Moyen"
+      },
+      "title": "Intensité de raisonnement"
     },
     "temperature": {
       "desc": "Plus la valeur est élevée, plus la réponse est aléatoire",
@@ -412,6 +423,7 @@
     "common": "Paramètres généraux",
     "experiment": "Expérience",
     "llm": "Modèle de langue",
+    "provider": "Fournisseur de services d'IA",
     "sync": "Synchronisation cloud",
     "system-agent": "Agent système",
     "tts": "Service vocal"

@@ -6,7 +6,6 @@ const HuggingFace: ModelProviderCard = {
       contextWindowTokens: 32_768,
       description: 'Mistral AI的指令调优模型',
       displayName: 'Mistral 7B Instruct v0.3',
-      enabled: true,
       id: 'mistralai/Mistral-7B-Instruct-v0.3',
     },
     {
@@ -31,6 +30,7 @@ const HuggingFace: ModelProviderCard = {
       contextWindowTokens: 32_768,
       description: 'Qwen QwQ 是由 Qwen 团队开发的实验研究模型，专注于提升AI推理能力。',
       displayName: 'QwQ 32B Preview',
+      enabled: true,
       id: 'Qwen/QwQ-32B-Preview',
     },
     {
@@ -43,6 +43,12 @@ const HuggingFace: ModelProviderCard = {
       displayName: 'Hermes 3 Llama 3.1 8B',
       id: 'NousResearch/Hermes-3-Llama-3.1-8B',
     },
+    {
+      contextWindowTokens: 16_384,
+      displayName: 'DeepSeek R1',
+      enabled: true,
+      id: 'deepseek-ai/DeepSeek-R1-Distill-Qwen-32B',
+    },
   ],
   checkModel: 'mistralai/Mistral-7B-Instruct-v0.2',
   description:
@@ -52,6 +58,11 @@ const HuggingFace: ModelProviderCard = {
   modelList: { showModelFetcher: true },
   modelsUrl: 'https://huggingface.co/docs/api-inference/en/supported-models',
   name: 'HuggingFace',
+  settings: {
+    disableBrowserRequest: true,
+    sdkType: 'huggingface',
+    showModelFetcher: true,
+  },
   url: 'https://huggingface.co',
 };
 

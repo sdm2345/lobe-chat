@@ -275,6 +275,7 @@
   },
   "temp": "臨時",
   "terms": "服務條款",
+  "update": "更新",
   "updateAgent": "更新助理資訊",
   "upgradeVersion": {
     "action": "升級",
@@ -285,6 +286,7 @@
     "anonymousNickName": "匿名使用者",
     "billing": "帳單管理",
     "cloud": "體驗 {{name}}",
+    "community": "社區版",
     "data": "資料儲存",
     "defaultNickname": "社群版使用者",
     "discord": "社區支援",
@@ -294,7 +296,6 @@
     "help": "幫助中心",
     "moveGuide": "設置按鈕搬到這裡啦",
     "plans": "訂閱方案",
-    "preview": "預覽",
     "profile": "帳戶管理",
     "setting": "應用設定",
     "usages": "用量統計"

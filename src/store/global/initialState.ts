@@ -26,9 +26,16 @@ export enum SettingsTabs {
   Agent = 'agent',
   Common = 'common',
   LLM = 'llm',
+  Provider = 'provider',
   Sync = 'sync',
   SystemAgent = 'system-agent',
   TTS = 'tts',
+}
+
+export enum ProfileTabs {
+  Profile = 'profile',
+  Security = 'security',
+  Stats = 'stats',
 }
 
 export interface SystemStatus {
@@ -45,6 +52,7 @@ export interface SystemStatus {
   latestChangelogId?: string;
   mobileShowPortal?: boolean;
   mobileShowTopic?: boolean;
+  portalWidth: number;
   sessionsWidth: number;
   showChatSideBar?: boolean;
   showFilePanel?: boolean;
@@ -79,6 +87,7 @@ export const INITIAL_STATUS = {
   hideThreadLimitAlert: false,
   inputHeight: 200,
   mobileShowTopic: false,
+  portalWidth: 400,
   sessionsWidth: 320,
   showChatSideBar: true,
   showFilePanel: true,

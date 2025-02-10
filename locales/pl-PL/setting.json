@@ -84,8 +84,7 @@
         },
         "modalTitle": "Konfiguracja niestandardowego modelu",
         "tokens": {
-          "title": "Maksymalna liczba tokenów",
-          "unlimited": "Nieograniczony"
+          "title": "Maksymalna liczba tokenów"
         },
         "vision": {
           "extra": "Ta konfiguracja włączy jedynie możliwość przesyłania obrazów w aplikacji, a to, czy rozpoznawanie będzie wspierane, zależy całkowicie od samego modelu. Proszę samodzielnie przetestować dostępność rozpoznawania wizualnego w tym modelu.",
@@ -201,6 +200,9 @@
     "enableMaxTokens": {
       "title": "Włącz limit jednorazowej odpowiedzi"
     },
+    "enableReasoningEffort": {
+      "title": "Włącz dostosowanie intensywności rozumowania"
+    },
     "frequencyPenalty": {
       "desc": "Im większa wartość, tym większe prawdopodobieństwo zmniejszenia powtarzających się słów",
       "title": "Kara za częstość"
@@ -216,6 +218,15 @@
     "presencePenalty": {
       "desc": "Im większa wartość, tym większe prawdopodobieństwo rozszerzenia się na nowe tematy",
       "title": "Świeżość tematu"
+    },
+    "reasoningEffort": {
+      "desc": "Im wyższa wartość, tym silniejsza zdolność rozumowania, ale może to zwiększyć czas odpowiedzi i zużycie tokenów",
+      "options": {
+        "high": "Wysoki",
+        "low": "Niski",
+        "medium": "Średni"
+      },
+      "title": "Intensywność rozumowania"
     },
     "temperature": {
       "desc": "Im większa wartość, tym odpowiedzi są bardziej losowe",
@@ -412,6 +423,7 @@
     "common": "Ustawienia ogólne",
     "experiment": "Eksperyment",
     "llm": "Model językowy",
+    "provider": "Dostawca usług AI",
     "sync": "Synchronizacja w chmurze",
     "system-agent": "System Agent",
     "tts": "Usługa głosowa"

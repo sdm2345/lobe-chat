@@ -86,7 +86,6 @@ export default {
         modalTitle: '自定义模型配置',
         tokens: {
           title: '最大 token 数',
-          unlimited: '无限制',
         },
         vision: {
           extra:
@@ -203,6 +202,9 @@ export default {
     enableMaxTokens: {
       title: '开启单次回复限制',
     },
+    enableReasoningEffort: {
+      title: '开启推理强度调整',
+    },
     frequencyPenalty: {
       desc: '值越大，越有可能降低重复字词',
       title: '频率惩罚度',
@@ -218,6 +220,15 @@ export default {
     presencePenalty: {
       desc: '值越大，越有可能扩展到新话题',
       title: '话题新鲜度',
+    },
+    reasoningEffort: {
+      desc: '值越大，推理能力越强，但可能会增加响应时间和 Token 消耗',
+      options: {
+        high: '高',
+        low: '低',
+        medium: '中',
+      },
+      title: '推理强度',
     },
     temperature: {
       desc: '值越大，回复越随机',
@@ -414,6 +425,7 @@ export default {
     'common': '通用设置',
     'experiment': '实验',
     'llm': '语言模型',
+    'provider': 'AI 服务商',
     'sync': '云端同步',
     'system-agent': '系统助手',
     'tts': '语音服务',

@@ -30,92 +30,120 @@ tags:
 - 你私有部署 Casdoor，其域名为 `https://lobe-auth-api.example.com`。
 
 <Steps>
+  ### 创建 Casdoor 应用
 
-### 创建 Casdoor 应用
+  访问你私有部署的 Casdoor WebUI（默认为 `http://localhost:8000/`） 进入控制台，默认账号为 `admin`，密码为 `123`。
 
-访问你私有部署的 Casdoor WebUI（默认为 `http://localhost:8000/`） 进入控制台，默认账号为 `admin`，密码为 `123`。
+  前往 `身份认证` -> `应用`，创建一个 `LobeChat` 应用或直接修改内置的 `built-in` 应用，其他字段可以自行探索，但你至少需要配置以下字段：
 
-前往 `身份认证` -> `应用`，创建一个 `LobeChat` 应用或直接修改内置的 `built-in` 应用，其他字段可以自行探索，但你至少需要配置以下字段：
+  - 名称、显示名称：`LobeChat`
+  - 重定向 URLs：
+    - 本地开发环境：`http://localhost:3210/api/auth/callback/casdoor`
+    - 局域网 IP 部署：`http://LOBECHAT_IP:3210/api/auth/callback/casdoor`
+    - 公网环境：`https://lobe.example.com/api/auth/callback/casdoor`
 
-- 名称、显示名称：`LobeChat`
-- 重定向 URLs：
-  - 本地开发环境：`http://localhost:3210/api/auth/callback/casdoor`
-  - 局域网 IP 部署：`http://LOBECHAT_IP:3210/api/auth/callback/casdoor`
-  - 公网环境：`https://lobe.example.com/api/auth/callback/casdoor`
+  还有一些不必需但是可以提高用户体验的字段：
 
-还有一些不必需但是可以提高用户体验的字段：
+  - Logo：`https://lobehub.com/icon-192x192.png`
+  - 表单 CSS、表单 CSS（移动端）：
 
-- Logo：`https://lobehub.com/icon-192x192.png`
-- 表单 CSS、表单 CSS（移动端）：
-
-```html
-<style>
-  .login-panel {
-    padding: 40px 70px 0 70px;
-    border-radius: 10px;
-    background-color: #ffffff;
-    box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
-  }
-  .panel-logo {
-    width: 64px;
-  }
-  .login-logo-box {
-    margin-top: 20px;
-  }
-
-  #parent-area
-    > main
-    > div
-    > div.login-content
-    > div.login-panel
-    > div.login-form
-    > div
-    > div
-    > button {
-    box-shadow: none !important;
-    border-radius: 10px !important;
-    transition-property: all;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 150ms;
-    border: 1px solid #eee !important;
-  }
-
-  @media (max-width: 640px) {
+  ```html
+  <style>
     .login-panel {
-      padding: 40px 0 0 0;
-      box-shadow: none;
+      padding: 40px 70px 0 70px;
+      border-radius: 10px;
+      background-color: #ffffff;
+      box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
     }
-  }
-</style>
-```
+    .panel-logo {
+      width: 64px;
+    }
+    .login-logo-box {
+      margin-top: 20px;
+    }
 
-随后，复制 `客户端 ID` 和 `客户端密钥`，并保存。
+    #parent-area
+      > main
+      > div
+      > div.login-content
+      > div.login-panel
+      > div.login-form
+      > div
+      > div
+      > button {
+      box-shadow: none !important;
+      border-radius: 10px !important;
+      transition-property: all;
+      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      transition-duration: 150ms;
+      border: 1px solid #eee !important;
+    }
 
-### 配置环境变量
+    @media (max-width: 640px) {
+      .login-panel {
+        padding: 40px 0 0 0;
+        box-shadow: none;
+      }
+    }
 
-将获取到的 `客户端 ID` 和 `客户端`，设为 LobeChat 环境变量中的 `AUTH_CASDOOR_ID` 和 `AUTH_CASDOOR_SECRET`。
 
-配置 LobeChat 环境变量中 `AUTH_CASDOOR_ISSUER` 为：
+  </style>
+  ```
 
-- `http://localhost:8000/`，若你是本地开发环境
-- `http://CASDOOR_IP:8000/`，若你是局域网私有部署的 Casdoor
-- `https://lobe-auth-api.example.com/`，若你是公网环境部署的 Casdoor
+  随后，复制 `客户端 ID` 和 `客户端密钥`，并保存。
 
-在部署 LobeChat 时，你需要配置以下环境变量：
+  ### 配置 Webhook （可选）
 
-| 环境变量 | 类型 | 描述 |
-| --- | --- | --- |
-| `NEXT_AUTH_SECRET` | 必选 | 用于加密 Auth.js 会话令牌的密钥。您可以使用以下命令生成秘钥： `openssl rand -base64 32` |
-| `NEXT_AUTH_SSO_PROVIDERS` | 必选 | 选择 LoboChat 的单点登录提供商。使用 Casdoor 请填写 `casdoor`。 |
-| `AUTH_CASDOOR_ID` | 必选 | Casdoor 应用详情页的客户端 ID |
-| `AUTH_CASDOOR_SECRET` | 必选 | Casdoor 应用详情页的客户端密钥 |
-| `AUTH_CASDOOR_ISSUER` | 必选 | Casdoor 提供程序的 OpenID Connect 颁发者。 |
-| `NEXTAUTH_URL` | 必选 | 该 URL 用于指定 Auth.js 在执行 OAuth 验证时的回调地址，当默认生成的重定向地址发生不正确时才需要设置。`https://lobe.example.com/api/auth` |
+  配置 Casdoor 的 Webhook 以便在用户信息更新时同步到 LobeChat 。
+
+  前往 `管理工具` -> `Webhooks`，创建一个 Webhook，添加一个 Webhook，填写以下字段：
+
+  - 链接：`http://lobe.example.com/api/auth/webhooks/casdoor`
+  - 方法：`POST`
+  - 内容类型：`application/json`
+  - 协议头：`casdoor-secret`: `你的Webhook密钥`
+  > 密钥由你自己生成，用于验证 Casdoor 发送的请求是否合法。 可以前往 https://generate-secret.vercel.app/10 生成一个 10 位的密钥。
+
+  - 事件：`update-user`
+  - 拓展用户字段：`true`
+
+  保存，并退出。 将该密钥填写到环境变量中的 `CASDOOR_WEBHOOK_SECRET`。
+
+  ### 关闭注册
+
+  为了保证你的应用安全，建议关闭 Casdoor 的注册功能，改为由管理员手动添加用户。
+  
+  前往 `身份认证` -> `应用`，将 `启用注册` 设置为 `否`。
+
+  <Callout type={'warning'}>
+    Casdoor 的注册功能默认是开启的，若你不关闭注册功能，任何人都可以注册并登录你的应用。
+  </Callout>
+
+  ### 配置环境变量
+
+  将获取到的 `客户端 ID` 和 `客户端`，设为 LobeChat 环境变量中的 `AUTH_CASDOOR_ID` 和 `AUTH_CASDOOR_SECRET`。
+
+  配置 LobeChat 环境变量中 `AUTH_CASDOOR_ISSUER` 为：
+
+  - `http://localhost:8000/`，若你是本地开发环境
+  - `http://CASDOOR_IP:8000/`，若你是局域网私有部署的 Casdoor
+  - `https://lobe-auth-api.example.com/`，若你是公网环境部署的 Casdoor
+
+  在部署 LobeChat 时，你需要配置以下环境变量：
+
+  | 环境变量                      | 类型 | 描述                                                                                               |
+  | ------------------------- | -- | ------------------------------------------------------------------------------------------------ |
+  | `NEXT_AUTH_SECRET`        | 必选 | 用于加密 Auth.js 会话令牌的密钥。您可以使用以下命令生成秘钥： `openssl rand -base64 32`                                    |
+  | `NEXT_AUTH_SSO_PROVIDERS` | 必选 | 选择 LoboChat 的单点登录提供商。使用 Casdoor 请填写 `casdoor`。                                                   |
+  | `AUTH_CASDOOR_ID`         | 必选 | Casdoor 应用详情页的客户端 ID                                                                             |
+  | `AUTH_CASDOOR_SECRET`     | 必选 | Casdoor 应用详情页的客户端密钥                                                                              |
+  | `AUTH_CASDOOR_ISSUER`     | 必选 | Casdoor 提供程序的 OpenID Connect 颁发者。                                                                |
+  | `NEXTAUTH_URL`            | 必选 | 该 URL 用于指定 Auth.js 在执行 OAuth 验证时的回调地址，当默认生成的重定向地址发生不正确时才需要设置。`https://lobe.example.com/api/auth` |
+  | `CASDOOR_WEBHOOK_SECRET`  | 可选 | 用于验证 Casdoor 发送的 Webhook 请求是否合法的密钥。 |
 
   <Callout type={'tip'}>
     前往 [📘 环境变量](/zh/docs/self-hosting/environment-variables/auth#casdoor) 可查阅相关变量详情。
-
-</Callout>
+  </Callout>
 </Steps>
 
 <Callout type={'info'}>部署成功后，用户将可以通过 Casdoor 身份认证并使用 LobeChat。</Callout>

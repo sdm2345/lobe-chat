@@ -8,8 +8,9 @@ import { Center, Flexbox } from 'react-layout-kit';
 
 import DataStyleModal from '@/components/DataStyleModal';
 import { useGlobalStore } from '@/store/global';
+import { useServerConfigStore } from '@/store/serverConfig';
 
-import { PGliteSVG } from './PGliteSVG';
+import PGliteIcon from './PGliteIcon';
 
 const useStyles = createStyles(({ css, token, isDarkMode, responsive }) => ({
   desc: css`
@@ -31,8 +32,8 @@ const useStyles = createStyles(({ css, token, isDarkMode, responsive }) => ({
   iconCtn: css`
     width: 72px;
     height: 72px;
-    background: ${isDarkMode ? token.blue1 : token.geekblue1};
     border-radius: 50%;
+    background: ${isDarkMode ? token.blue1 : token.geekblue1};
   `,
   intro: css`
     ${responsive.mobile} {
@@ -56,10 +57,12 @@ interface EnableClientDBModalProps {
 const EnableClientDBModal = memo<EnableClientDBModalProps>(({ open }) => {
   const { t } = useTranslation('common');
   const { styles } = useStyles();
+  const isMobile = useServerConfigStore((s) => s.isMobile);
+
   const markPgliteEnabled = useGlobalStore((s) => s.markPgliteEnabled);
   const features = [
     {
-      avatar: PGliteSVG,
+      avatar: PGliteIcon,
       desc: t('clientDB.modal.features.pglite.desc'),
       title: t('clientDB.modal.features.pglite.title'),
     },
@@ -76,7 +79,12 @@ const EnableClientDBModal = memo<EnableClientDBModalProps>(({ open }) => {
   ];
 
   return (
-    <DataStyleModal icon={CpuIcon} open={open} title={t('clientDB.modal.title')}>
+    <DataStyleModal
+      height={isMobile ? '80vh' : undefined}
+      icon={CpuIcon}
+      open={open}
+      title={t('clientDB.modal.title')}
+    >
       <Center gap={48}>
         <Flexbox>
           <Flexbox className={styles.intro} style={{ textAlign: 'center' }} width={460}>

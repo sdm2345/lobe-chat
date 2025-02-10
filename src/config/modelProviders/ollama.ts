@@ -90,14 +90,6 @@ const Ollama: ModelProviderCard = {
       id: 'qwen2.5:72b',
     },
     {
-      contextWindowTokens: 128_000,
-      description: 'Qwen2.5 是阿里巴巴的新一代大规模语言模型，以优异的性能支持多元化的应用需求。',
-      displayName: 'Qwen2.5 7B',
-      enabled: true,
-      functionCall: true,
-      id: 'qwen2.5',
-    },
-    {
       contextWindowTokens: 65_536,
       description: 'CodeQwen1.5 是基于大量代码数据训练的大型语言模型，专为解决复杂编程任务。',
       displayName: 'CodeQwen1.5 7B',
@@ -334,6 +326,7 @@ const Ollama: ModelProviderCard = {
       vision: true,
     },
   ],
+  checkModel: 'deepseek-r1',
   defaultShowBrowserRequest: true,
   description:
     'Ollama 提供的模型广泛涵盖代码生成、数学运算、多语种处理和对话互动等领域，支持企业级和本地化部署的多样化需求。',
@@ -341,6 +334,12 @@ const Ollama: ModelProviderCard = {
   modelList: { showModelFetcher: true },
   modelsUrl: 'https://ollama.com/library',
   name: 'Ollama',
+  settings: {
+    defaultShowBrowserRequest: true,
+    sdkType: 'ollama',
+    showApiKey: false,
+    showModelFetcher: true,
+  },
   showApiKey: false,
   url: 'https://ollama.com',
 };

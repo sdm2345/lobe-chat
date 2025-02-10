@@ -84,8 +84,7 @@
         },
         "modalTitle": "사용자 정의 모델 구성",
         "tokens": {
-          "title": "최대 토큰 수",
-          "unlimited": "제한 없는"
+          "title": "최대 토큰 수"
         },
         "vision": {
           "extra": "이 설정은 애플리케이션 내에서 이미지 업로드 기능만 활성화합니다. 인식 지원 여부는 모델 자체에 따라 다르므로, 해당 모델의 시각 인식 가능성을 직접 테스트해 보시기 바랍니다.",
@@ -201,6 +200,9 @@
     "enableMaxTokens": {
       "title": "단일 응답 제한 활성화"
     },
+    "enableReasoningEffort": {
+      "title": "추론 강도 조정 활성화"
+    },
     "frequencyPenalty": {
       "desc": "값이 클수록 반복 단어가 줄어듭니다",
       "title": "빈도 패널티"
@@ -216,6 +218,15 @@
     "presencePenalty": {
       "desc": "값이 클수록 새로운 주제로 확장될 가능성이 높아집니다",
       "title": "주제 신선도"
+    },
+    "reasoningEffort": {
+      "desc": "값이 클수록 추론 능력이 강해지지만, 응답 시간과 토큰 소모가 증가할 수 있습니다.",
+      "options": {
+        "high": "높음",
+        "low": "낮음",
+        "medium": "중간"
+      },
+      "title": "추론 강도"
     },
     "temperature": {
       "desc": "값이 클수록 응답이 더 무작위해집니다",
@@ -412,6 +423,7 @@
     "common": "일반 설정",
     "experiment": "실험",
     "llm": "언어 모델",
+    "provider": "AI 서비스 제공자",
     "sync": "클라우드 동기화",
     "system-agent": "시스템 도우미",
     "tts": "음성 서비스"

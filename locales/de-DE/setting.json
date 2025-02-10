@@ -84,8 +84,7 @@
         },
         "modalTitle": "Benutzerdefinierte Modellkonfiguration",
         "tokens": {
-          "title": "Maximale Token-Anzahl",
-          "unlimited": "unbegrenzt"
+          "title": "Maximale Token-Anzahl"
         },
         "vision": {
           "extra": "Diese Konfiguration aktiviert nur die Bild-Upload-Einstellungen innerhalb der Anwendung. Ob die Erkennung unterstützt wird, hängt vollständig vom Modell selbst ab. Bitte teste die Verwendbarkeit der visuellen Erkennungsfähigkeit des Modells selbst.",
@@ -201,6 +200,9 @@
     "enableMaxTokens": {
       "title": "Maximale Token pro Antwort aktivieren"
     },
+    "enableReasoningEffort": {
+      "title": "Aktivieren Sie die Anpassung der Schlussfolgerungsintensität"
+    },
     "frequencyPenalty": {
       "desc": "Je höher der Wert, desto wahrscheinlicher ist es, dass sich wiederholende Wörter reduziert werden",
       "title": "Frequenzstrafe"
@@ -216,6 +218,15 @@
     "presencePenalty": {
       "desc": "Je höher der Wert, desto wahrscheinlicher ist es, dass sich das Gespräch auf neue Themen ausweitet",
       "title": "Themenfrische"
+    },
+    "reasoningEffort": {
+      "desc": "Je höher der Wert, desto stärker die Schlussfolgerungsfähigkeit, aber dies kann die Antwortzeit und den Tokenverbrauch erhöhen.",
+      "options": {
+        "high": "Hoch",
+        "low": "Niedrig",
+        "medium": "Mittel"
+      },
+      "title": "Schlussfolgerungsintensität"
     },
     "temperature": {
       "desc": "Je höher der Wert, desto zufälliger die Antwort",
@@ -412,6 +423,7 @@
     "common": "Allgemeine Einstellungen",
     "experiment": "Experiment",
     "llm": "Sprachmodell",
+    "provider": "KI-Dienstanbieter",
     "sync": "Cloud-Synchronisierung",
     "system-agent": "Systemassistent",
     "tts": "Sprachdienste"
