@@ -5,12 +5,13 @@ import { LobeOpenAICompatibleFactory } from '../utils/openaiCompatibleFactory';
 
 import { LOBE_DEFAULT_MODEL_LIST } from '@/config/aiModels';
 
+
 export interface DeepSeekModelCard {
   id: string;
 }
 
 export const LobeDeepSeekAI = LobeOpenAICompatibleFactory({
-  baseURL: 'https://api.deepseek.com/v1',
+  baseURL: process.env["DEEPSEEK_PROXY_URL"],
   chatCompletion: {
     handlePayload: ({ frequency_penalty, messages, model, presence_penalty, temperature, top_p, ...payload }: ChatStreamPayload) => {
       // github.com/lobehub/lobe-chat/pull/5548
@@ -40,20 +41,27 @@ export const LobeDeepSeekAI = LobeOpenAICompatibleFactory({
         model,
         ...(model === 'deepseek-reasoner'
           ? {
-              frequency_penalty: undefined,
-              messages: filteredMessages,
-              presence_penalty: undefined,
-              temperature: undefined,
-              top_p: undefined,
-            }
+            frequency_penalty: undefined,
+            messages: filteredMessages,
+            presence_penalty: undefined,
+            temperature: undefined,
+            defaultHeaders: {
+              'api-key': process.env["DEEPSEEK_API_KEY"] || '',
+            },
+            top_p: undefined,
+           
+          }
           : {
-              frequency_penalty,
-              messages,
-              presence_penalty,
-              temperature,
-              top_p,
-            }),
-      } as OpenAI.ChatCompletionCreateParamsStreaming;
+            defaultHeaders: {
+              'api-key': process.env["DEEPSEEK_API_KEY"] || '',
+            },
+            frequency_penalty,
+            messages,
+            presence_penalty,
+            temperature,
+            top_p,
+          }),
+      } as unknown as OpenAI.ChatCompletionCreateParamsStreaming;
     },
   },
   debug: {
