@@ -1,148 +1,147 @@
-import {AzureKeyCredential, ChatRequestMessage, GetChatCompletionsOptions, OpenAIClient,} from '@azure/openai';
+import { AzureOpenAI } from 'openai';
+import type {  ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 
-import {LobeRuntimeAI} from '../BaseAI';
-import {AgentRuntimeErrorType} from '../error';
-import {ChatCompetitionOptions, ChatStreamPayload, ModelProvider} from '../types';
-import {AgentRuntimeError} from '../utils/createError';
-import {debugStream} from '../utils/debugStream';
-import {StreamingResponse} from '../utils/response';
-import {AzureOpenAIStream} from '../utils/streams';
+import { LobeRuntimeAI } from '../BaseAI';
+import { AgentRuntimeErrorType } from '../error';
+import { ChatCompetitionOptions, ChatStreamPayload, ModelProvider } from '../types';
+import { AgentRuntimeError } from '../utils/createError';
+import { debugStream } from '../utils/debugStream';
+import { StreamingResponse } from '../utils/response';
+import {AzureOpenAIStream} from "@/libs/agent-runtime/utils/streams";
 
 export class LobeAzureOpenAI implements LobeRuntimeAI {
-  client: OpenAIClient;
+  client: AzureOpenAI;
+  baseURL: string;
 
   constructor(endpoint?: string, apikey?: string, apiVersion?: string) {
     if (!apikey || !endpoint)
       throw AgentRuntimeError.createError(AgentRuntimeErrorType.InvalidProviderAPIKey);
 
-    console.log(`init OpenAIClient endpoint:${endpoint}`)
-    this.client = new OpenAIClient(endpoint, new AzureKeyCredential(apikey), {allowInsecureConnection:true,apiVersion});
+    console.log(`init AzureOpenAI endpoint:${endpoint}`);
+
+    this.client = new AzureOpenAI({
+      apiKey: apikey,
+
+      defaultQuery: { 'api-version': apiVersion || '2024-02-15-preview' },
+      endpoint,
+    });
 
     this.baseURL = endpoint;
   }
 
-  baseURL: string;
+  private createStreamingResponse(content: string, id: string) {
+    return new ReadableStream({
+      start(controller) {
+        const encoder = new TextEncoder();
+        const lines = content.split('\n');
+        for (const line of lines) {
+          const msg = `id: ${id}\nevent: text\ndata: ${JSON.stringify(line + '\n')}\n\n`;
+          controller.enqueue(encoder.encode(msg));
+        }
+        controller.close();
+      }
+    });
+  }
 
   async chat(payload: ChatStreamPayload, options?: ChatCompetitionOptions) {
-    // ============  1. preprocess messages   ============ //
-    const camelCasePayload = this.camelCaseKeys(payload);
-    const {messages, model, maxTokens = 2048, ...params} = camelCasePayload;
-
-    // ============  2. send api   ============ //
-
-    console.log('model.slice(0, 8) === \'o3-mini-\' ',model.slice(0, 8) === 'o3-mini-' ,model,model.slice(0, 8))
-    // mock stream api for o1-mini and o1-preview
+    const { messages, model, ...params } = payload;
+    // @ts-ignore
+    delete params['stop'];
+    // mock stream api for o3-mini and o1-preview models
     if (model.slice(0, 8) === 'o3-mini-' || model === 'o1-mini' || model === 'o1-preview') {
-      const params2 = {...params}
-      delete params2['stream']
-      delete params2['temperature']
-      const messages2 = messages.map((item: ChatRequestMessage) => {
-        item.role = item.role === 'system' ? 'user' : item.role;
-        return item;
-      })
-      console.log('messages2:', messages2)
+      const params2:Record<string, any> = { ...params };
+      delete params2['stream'];
+      delete params2['temperature'];
+      const messages2 = messages.map((item) => {
+        if(item.role === 'system') {
+          // @ts-ignore
+          item.role = 'user';
+        }
+        return item
+    });
+
       let modelNew = model;
-      let reasoning_effort = 'low'
+      let reasoning_effort = 'low';
+
       if (model.slice(0, 8) === 'o3-mini-') {
-        modelNew = 'o3-mini'
-        reasoning_effort = model.slice(8)
+        modelNew = 'o3-mini';
+        reasoning_effort = model.slice(8);
         const TypeMap: Record<string, string> = {
           'high': 'high',
           'low': 'low',
           'medium': 'medium'
-        }
-        reasoning_effort = (TypeMap[reasoning_effort] as string) || 'low'
-
-        // params2['reasoning_effort'] = reasoning_effort
-      }
-      console.log('params',params2)
-      const response = await this.client.getChatCompletions(
-        modelNew,
-        messages2 as ChatRequestMessage[],
-        {...params2, abortSignal: options?.signal} as GetChatCompletionsOptions,
-      );
-
-      const sendMessage = function (ctl: ReadableStreamDefaultController, evt: {
-        data: any,
-        event: string,
-        id: string,
-      }) {
-        const encoder: TextEncoder = new TextEncoder();
-        const msg = `id: ${evt.id}
-event: ${evt.event}
-data: ${JSON.stringify(evt.data)}\n\n`
-        ctl.enqueue(encoder.encode(msg));
+        };
+        reasoning_effort = TypeMap[reasoning_effort] || 'low';
+        params2['reasoning_effort'] = reasoning_effort;
       }
 
-      console.log('result console.log(\'result\',response.choices)',response.choices)
+      try {
+        const response = await this.client.chat.completions.create({
+          messages: messages2,
+          model: modelNew,
+          ...params2,
+        });
 
-      return StreamingResponse(new ReadableStream({
-        start: (controller) => {
-
-          console.log('result',response.choices)
-          let content = response.choices[0].message?.content
-          if (content) {
-            const arr = content.split('\n')
-            for (const line of arr) {
-              sendMessage(controller, {
-                  data: line + '\n',
-                  event: 'text',
-                  id: response.id
-                }
-              )
-            }
-          }
-          controller.close()
-        }
-      }));
+        const content = response.choices[0]?.message?.content || '';
+        return StreamingResponse(this.createStreamingResponse(content, response.id));
+      } catch (error) {
+        throw this.handleError(error);
+      }
     }
+
     try {
-      const response = await this.client.streamChatCompletions(
+      const response = await this.client.chat.completions.create({
+        messages: messages as ChatCompletionMessageParam[],
         model,
-        messages as ChatRequestMessage[],
-        {...params, abortSignal: options?.signal, maxTokens} as GetChatCompletionsOptions,
-      );
+        stream: true,
+        ...params,
+      });
 
       const [debug, prod] = response.tee();
 
       if (process.env.DEBUG_AZURE_CHAT_COMPLETION === '1') {
+        // @ts-ignore
         debugStream(debug).catch(console.error);
       }
 
-      return StreamingResponse(AzureOpenAIStream(prod, options?.callback), {
+       return StreamingResponse(AzureOpenAIStream(prod, options?.callback), {
         headers: options?.headers,
       });
     } catch (e) {
-      let error = e as { [key: string]: any; code: string; message: string };
-
-      if (error.code) {
-        switch (error.code) {
-          case 'DeploymentNotFound': {
-            error = {...error, deployId: model};
-          }
-        }
-      } else {
-        error = {
-          cause: error.cause,
-          message: error.message,
-          name: error.name,
-        } as any;
-      }
-
-      const errorType = error.code
-        ? AgentRuntimeErrorType.ProviderBizError
-        : AgentRuntimeErrorType.AgentRuntimeError;
-
-      throw AgentRuntimeError.chat({
-        endpoint: this.maskSensitiveUrl(this.baseURL),
-        error,
-        errorType,
-        provider: ModelProvider.Azure,
-      });
+      throw this.handleError(e);
     }
   }
 
-  // Convert object keys to camel case, copy from `@azure/openai` in `node_modules/@azure/openai/dist/index.cjs`
+  private handleError(e: any) {
+    let error = e as { [key: string]: any; code: string; message: string };
+
+    if (error.code) {
+      switch (error.code) {
+        case 'DeploymentNotFound': {
+          error = { ...error, deployId: error.model };
+          break;
+        }
+      }
+    } else {
+      error = {
+        cause: error.cause,
+        message: error.message,
+        name: error.name,
+      } as any;
+    }
+
+    const errorType = error.code
+      ? AgentRuntimeErrorType.ProviderBizError
+      : AgentRuntimeErrorType.AgentRuntimeError;
+
+      throw AgentRuntimeError.chat({
+      endpoint: this.maskSensitiveUrl(this.baseURL),
+      error,
+      errorType,
+      provider: ModelProvider.Azure,
+    });
+  }
+
   private camelCaseKeys = (obj: any): any => {
     if (typeof obj !== 'object' || !obj) return obj;
     if (Array.isArray(obj)) {
@@ -167,12 +166,8 @@ data: ${JSON.stringify(evt.data)}\n\n`
   };
 
   private maskSensitiveUrl = (url: string) => {
-    // 使用正则表达式匹配 'https://' 后面和 '.openai.azure.com/' 前面的内容
     const regex = /^(https:\/\/)([^.]+)(\.openai\.azure\.com\/.*)$/;
-
-    // 使用替换函数
     return url.replace(regex, (match, protocol, subdomain, rest) => {
-      // 将子域名替换为 '***'
       return `${protocol}***${rest}`;
     });
   };
